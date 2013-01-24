@@ -195,22 +195,4 @@
     _volumeLevel.value = flNewLevel;
 }
 
-
-#pragma mark - F3StepperDelegate protocol
-//-----------------------------------------------------------------------
-//  Method: stepperValueChanged:
-//      Delegate method called by the F3Stepper control when
-//      user changes the value.
-//
-//      Use of this protocol/method may be preferred when you are not
-//      interested in intermediate values.   This method is called only
-//      when the user has stopped changing the value on the stepper
-//      and provides the ability to 
-//
--(void) stepperValueChanged:(F3Stepper *)stepper;
-{
-    // Which stepper?
-    if( stepper == _fontSizeStepper ) {
-    }
-}
 @end
