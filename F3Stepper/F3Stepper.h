@@ -49,7 +49,7 @@
 @property (readwrite, nonatomic) float              stepValue;          // Step up/down value
 @property (readwrite, nonatomic) float              value;              // Currently displayed value
 @property (readwrite, nonatomic, retain) NSString   *formatString;      // String for formatting display
-@property (readwrite, nonatomic, retain) UIFont     *labelFont;         // Font for label
+@property (readwrite, nonatomic, retain) UIFont     *font;              // Font for label
 @property (readwrite, nonatomic, retain) UIColor    *textColor;         // Color of text
 @property (readwrite, nonatomic, retain) UIColor    *borderColor;       // Color of border
 @property (readwrite, nonatomic, retain) UIColor    *backgroundColor;   // Color of background
