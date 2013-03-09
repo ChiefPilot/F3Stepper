@@ -67,6 +67,7 @@
 // Unpublished methods
 - (void) initChildViews;
 - (void) setDefaults;
+- (void) repeatDelayTimerFired:(NSTimer *) a_timer;
 - (void) autoRepeatTimerFired:(NSTimer *) a_timer;
 - (void) didStartIncrement:(id) sender;
 - (void) didStartDecrement:(id) sender;
@@ -363,6 +364,8 @@
     _maxValue = 80.0f;
     _stepValue = 1.0f;
     _value = _minValue;
+    _repeatDelaySec = 0.3f;
+    _repeatRate = 15.0f;
     _formatString = @"%0.1f";
     _backgroundColor = [UIColor whiteColor];
     _borderColor = [UIColor lightGrayColor];
@@ -377,13 +380,30 @@
 }
 
 
-#pragma mark - Value update methods
+#pragma mark - Timer event handlers
+//-----------------------------------------------------------------------
+//  Method: startAutoRepeat:
+//      Called when the repeat delay timer fires.   Used to start
+//      the auto-repeat timer.
+//
+- (void) repeatDelayTimerFired:(NSTimer *)a_timer
+{
+    // Kill the delay timer and start repeat timer
+    [_repeatTimer invalidate];
+    _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:(1.0f/_repeatRate)
+                                                    target:self
+                                                  selector:@selector(autoRepeatTimerFired:)
+                                                  userInfo:nil
+                                                   repeats:YES];
+}
+
+
 //-----------------------------------------------------------------------
 //  Method: autoRepeatTimerFired:
 //      Called when the "hold-to-repeat" timer fires.  Adjusts
 //      the value as appropriate.
 //
-- (void) autoRepeatTimerFired:(NSTimer *) a_timer;
+- (void) autoRepeatTimerFired:(NSTimer *) a_timer
 {
     // Update the value and display
     [self setValue:_value + _flAutoStepValue];
@@ -399,11 +419,11 @@
             _flAutoStepValue *= 2.0f;
             break;
             
-        case 30:    // After three seconds, update at 5x speed
+        case 20:    // After two seconds, update at 5x speed
             _flAutoStepValue *= 2.5f;
             break;
             
-        case 50:    // After five seconds, update at 10x speed
+        case 30:    // After three seconds, update at 10x speed
             _flAutoStepValue *= 2.0f;
             break;
             
@@ -413,6 +433,7 @@
 }
 
 
+#pragma mark - Value update methods
 //-----------------------------------------------------------------------
 //  Method: didStartIncrement:
 //      Called when the "up" button is tapped.   Increments value by
@@ -430,14 +451,17 @@
     [_btnUp.layer insertSublayer:_pressLayer atIndex:0];
     _pressLayer.frame = _btnUp.layer.bounds;
 
-    // Start the timer
-    _iUpdateCount = 1;
-    _flAutoStepValue = _stepValue;
-    _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.10f
-                                                    target:self
-                                                  selector:@selector(autoRepeatTimerFired:)
-                                                  userInfo:nil
-                                                   repeats:YES];
+    // Start the timer?
+    if( _repeatRate > 0.0f && _repeatDelaySec > 0.0f ) {
+        // Do it!
+        _iUpdateCount = 1;
+        _flAutoStepValue = _stepValue;
+        _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:_repeatDelaySec
+                                                        target:self
+                                                      selector:@selector(repeatDelayTimerFired:)
+                                                      userInfo:nil
+                                                       repeats:NO];
+    }
     
     // Publish start editing event
     [self sendActionsForControlEvents:UIControlEventEditingDidBegin];
@@ -462,14 +486,17 @@
     [_btnDown.layer insertSublayer:_pressLayer atIndex:0];
     _pressLayer.frame = _btnDown.layer.bounds;
     
-    // Start the timer
-    _iUpdateCount = 1;
-    _flAutoStepValue = -(_stepValue);
-    _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.10f
-                                                    target:self
-                                                  selector:@selector(autoRepeatTimerFired:)
-                                                  userInfo:nil
-                                                   repeats:YES];
+    // Start the timer?
+    if( _repeatRate > 0.0f && _repeatDelaySec > 0.0f ) {
+        
+        _iUpdateCount = 1;
+        _flAutoStepValue = -(_stepValue);
+        _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:_repeatDelaySec
+                                                        target:self
+                                                      selector:@selector(repeatDelayTimerFired:)
+                                                      userInfo:nil
+                                                       repeats:NO];
+    }
     
     // Publish start editing event
     [self sendActionsForControlEvents:UIControlEventEditingDidBegin];
