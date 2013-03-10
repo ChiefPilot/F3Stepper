@@ -183,6 +183,7 @@
 {
     // Clamp the value to min/max and update display
     _value = MIN(_maxValue, MAX(_minValue, a_value));
+    
     [self updateDisplay];
 }
 
@@ -366,6 +367,7 @@
     _value = _minValue;
     _repeatDelaySec = 0.3f;
     _repeatRate = 15.0f;
+    _wraps = NO;
     _formatString = @"%0.1f";
     _backgroundColor = [UIColor whiteColor];
     _borderColor = [UIColor lightGrayColor];
@@ -405,8 +407,26 @@
 //
 - (void) autoRepeatTimerFired:(NSTimer *) a_timer
 {
-    // Update the value and display
-    [self setValue:_value + _flAutoStepValue];
+    // Is wrapping enabled?
+    if( _wraps ) {
+        // Yes, will we need to wrap this time?
+        if( _value + _flAutoStepValue > _maxValue ) {
+            // Yes: maximum exceeded - wrap to minimum
+            [self setValue:_minValue];
+        }
+        else if(_value + _flAutoStepValue < _minValue) {
+            // Yes: minimum exceeded - wrap to maximum
+            [self setValue:_maxValue];
+        }
+        else {
+            // No, business as usual
+            [self setValue:_value + _flAutoStepValue];
+        }
+    }
+    else {
+        // Not wrapping - update the value and display
+        [self setValue:_value + _flAutoStepValue];
+    }
     
     // Send the UIControl event
     // ... This lets us play nice with IB
@@ -445,7 +465,15 @@
     // Adjust the value and display it
     // ... The property will clamp it to the allowable range and
     // ... also update the display.
-    self.value = _value + _stepValue;
+    if( _wraps && (_value + _stepValue > _maxValue) ) {
+        // Wrapping is enabled and minimum value has been
+        // ... been exceeded.   New value is maximum limit.
+        self.value = _minValue;
+    }
+    else {
+        // Update normally
+        self.value = _value + _stepValue;
+    }
     
     // Add the pressed layer to the button
     [_btnUp.layer insertSublayer:_pressLayer atIndex:0];
@@ -480,7 +508,15 @@
     // Adjust the value and display it
     // ... The property will clamp it to the allowable range and
     // ... also update the display.
-    self.value = _value - _stepValue;
+    if( _wraps && (_value - _stepValue < _minValue) ) {
+        // Wrapping is enabled and minimum value has been
+        // ... been exceeded.   New value is maximum limit.
+        self.value = _maxValue;
+    }
+    else {
+        // Update normally
+        self.value = _value - _stepValue;
+    }
     
     // Add the pressed layer to the button
     [_btnDown.layer insertSublayer:_pressLayer atIndex:0];
@@ -533,8 +569,8 @@
     _lblValue.text = [NSString stringWithFormat:_formatString, _value];
     
     // Update buttons
-    _btnUp.enabled = (_value < _maxValue);
-    _btnDown.enabled = (_value > _minValue);
+    _btnUp.enabled = (_wraps || (_value < _maxValue));
+    _btnDown.enabled = (_wraps || (_value > _minValue));
 }
 
 

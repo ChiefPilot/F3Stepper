@@ -85,6 +85,7 @@
     self.fontSizeStepper.minValue = 5.0f;
     self.fontSizeStepper.maxValue = 36.0f;
     self.fontSizeStepper.stepValue = 1.0f;
+    self.fontSizeStepper.wraps = YES;
     self.fontSizeStepper.value = _fontSizeLabel.font.pointSize;
     self.fontSizeStepper.formatString = @"%0.1f pts";
     

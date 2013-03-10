@@ -50,6 +50,7 @@
 @property (readwrite, nonatomic) float              value;              // Currently displayed value
 @property (readwrite, nonatomic) float              repeatDelaySec;     // Delay before auto-repeat, in seconds
 @property (readwrite, nonatomic) float              repeatRate;         // Number of updates per second for auto-repeat
+@property (readwrite, nonatomic) BOOL               wraps;              // YES = value wraps from max to minimum & minimum to maximum.
 @property (readwrite, nonatomic, retain) NSString   *formatString;      // String for formatting display
 @property (readwrite, nonatomic, retain) UIFont     *font;              // Font for label
 @property (readwrite, nonatomic, retain) UIColor    *textColor;         // Color of text
