@@ -64,15 +64,6 @@
     UILabel         *_lblValue;         // Value label
 }
 
-// Unpublished methods
-- (void) initChildViews;
-- (void) setDefaults;
-- (void) repeatDelayTimerFired:(NSTimer *) a_timer;
-- (void) autoRepeatTimerFired:(NSTimer *) a_timer;
-- (void) didStartIncrement:(id) sender;
-- (void) didStartDecrement:(id) sender;
-- (void) didEndValueChange:(id) sender;
-- (void) updateDisplay;
 
 @end
 
@@ -145,14 +136,10 @@
 //
 - (void) setMinValue:(float)a_flValue
 {
-    // Save it
+    // Save it and set the current value
+    // ... Setting the current value clamps to new limits
     _minValue = a_flValue;
-    
-    // Do we need to update current value?
-    if( _value < _minValue ) {
-        // Yes, do it
-        [self setValue:_minValue];
-    }
+    [self setValue:_value];
 }
 
 
@@ -164,14 +151,10 @@
 //
 - (void) setMaxValue:(float)a_flValue
 {
-    // Save it
+    // Save it and set the current value
+    // ... Setting the current value clamps to new limits
     _maxValue = a_flValue;
-    
-    // Do we need to update current value?
-    if( _value > _maxValue ) {
-        // Yes, do it
-        [self setValue:_maxValue];
-    }
+    [self setValue:_value];
 }
 
 
@@ -183,7 +166,6 @@
 {
     // Clamp the value to min/max and update display
     _value = MIN(_maxValue, MAX(_minValue, a_value));
-    
     [self updateDisplay];
 }
 
@@ -524,7 +506,6 @@
     
     // Start the timer?
     if( _repeatRate > 0.0f && _repeatDelaySec > 0.0f ) {
-        
         _iUpdateCount = 1;
         _flAutoStepValue = -(_stepValue);
         _repeatTimer = [NSTimer scheduledTimerWithTimeInterval:_repeatDelaySec
